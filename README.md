@@ -1,0 +1,1 @@
+# DeepDigitor...MLP-for-MNIST
