@@ -27,5 +27,4 @@ class MLP:
         """
         print("MLP Structure:")
         for idx, layer in enumerate(self.layers, start=1):
-            print(
-                f"Layer {idx}: {layer.num_neurons} neurons, Input Size: {layer.input_size}")
+            print(f"Layer {idx}: {layer.num_neurons} neurons, Input Size: {layer.input_size}, Activation: {layer.activation_function.__class__.__name__}")
