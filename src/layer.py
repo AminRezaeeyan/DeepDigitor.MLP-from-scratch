@@ -1,31 +1,44 @@
+import numpy as np
 from perceptron import Perceptron
 from activation_function import ActivationFunction
 
 
 class Layer:
-    """
-    Represents a dense layer consisting of multiple perceptrons.
-    """
-
     def __init__(self, input_size: int, num_neurons: int, activation_function: ActivationFunction):
-        """
-        Initializes a layer with a specified number of perceptrons.
-
-        Args:
-            input_size (int): Number of input features.
-            num_neurons (int): Number of perceptrons in the layer.
-            activation_function (ActivationFunction): Activation function for the layer.
-        """
         self.input_size = input_size
         self.num_neurons = num_neurons
         self.activation_function = activation_function
-        self.perceptrons = self.create_perceptrons()
+        self.weights = np.random.randn(input_size, num_neurons)
+        self.biases = np.random.randn(1, num_neurons)
 
-    def create_perceptrons(self):
+    def forward(self, inputs):
         """
-        Creates the perceptrons for the layer.
+        Forward pass through the layer.
+
+        Args:
+            inputs (np.ndarray): Input data of shape (batch_size, input_size).
 
         Returns:
-            list: A list of Perceptron objects.
+            np.ndarray: Activated output of the layer.
         """
-        return [Perceptron(self.input_size) for _ in range(self.num_neurons)]
+        self.inputs = inputs
+        self.z = np.dot(inputs, self.weights) + self.biases
+        self.a = self.activation_function.activate(self.z)
+        return self.a
+
+    def backward(self, dA, learning_rate):
+        """
+        Backward pass through the layer.
+
+        Args:
+            dA (np.ndarray): Gradient of the loss with respect to the output.
+            learning_rate (float): Learning rate for weight updates.
+        """
+        dZ = dA * self.activation_function.derivative(self.z)
+        dW = np.dot(self.inputs.T, dZ) / self.inputs.shape[0]
+        dB = np.sum(dZ, axis=0, keepdims=True) / self.inputs.shape[0]
+
+        self.weights -= learning_rate * dW
+        self.biases -= learning_rate * dB
+
+        return np.dot(dZ, self.weights.T)
