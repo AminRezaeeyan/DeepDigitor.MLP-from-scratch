@@ -9,7 +9,8 @@ class Layer:
         self.input_size = input_size
         self.num_neurons = num_neurons
         self.activation_function = activation_function
-        self.weights = np.random.randn(input_size, num_neurons)
+        self.weights = np.random.randn(
+            input_size, num_neurons) * np.sqrt(2.0 / input_size)
         self.biases = np.random.randn(1, num_neurons)
         self.optimizer = optimizer
 
