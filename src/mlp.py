@@ -1,6 +1,10 @@
 from layer import Layer
 from loss_function import LossFunction
 
+from loss_function import *
+from activation_function import *
+from optimizer import *
+
 
 class MLP:
     def __init__(self):
@@ -10,35 +14,16 @@ class MLP:
         self.layers.append(layer)
 
     def forward(self, X):
-        """
-        Perform a forward pass through the entire network.
-
-        Args:
-            X (np.ndarray): Input data of shape (batch_size, input_size).
-
-        Returns:
-            np.ndarray: Final output after passing through all layers.
-        """
         output = X
         for layer in self.layers:
             output = layer.forward(output)
         return output
 
-    def backward(self, X, y_true, learning_rate, loss_function: LossFunction):
-        """
-        Perform a backward pass through the network and update weights.
-
-        Args:
-            X (np.ndarray): Input data.
-            y_true (np.ndarray): True labels.
-            learning_rate (float): Learning rate for weight updates.
-            loss_function (LossFunction): Loss function to compute gradients.
-        """
+    def backward(self, X, y_true, loss_function: LossFunction):
         y_pred = self.forward(X)
         dA = loss_function.derivative(y_true, y_pred)
-
         for layer in reversed(self.layers):
-            dA = layer.backward(dA, learning_rate)
+            dA = layer.backward(dA)
 
     def summary(self):
         print("MLP Structure:")
