@@ -1,9 +1,5 @@
 from layer import Layer
-from loss_function import LossFunction
-
 from loss_function import *
-from activation_function import *
-from optimizer import *
 
 
 class MLP:
@@ -25,8 +21,10 @@ class MLP:
         for layer in reversed(self.layers):
             dA = layer.backward(dA)
 
-    def train(self, X, y, loss_function: LossFunction, epochs=10, batch_size=32, verbose=True):
+    def train(self, X, y, loss_function: LossFunction, epochs=10, batch_size=32, verbose=True, X_val=None, y_val=None):
         n_samples = X.shape[0]
+
+        val_loss = None
 
         for epoch in range(1, epochs + 1):
             # Shuffle the data at the beginning of each epoch
@@ -44,11 +42,20 @@ class MLP:
                 # Perform forward and backward passes for the batch
                 self.backward(X_batch, y_batch, loss_function)
 
-            # Optionally calculate and display loss for the entire dataset
             if verbose:
                 y_pred = self.forward(X)
                 loss = loss_function.compute(y, y_pred)
-                print(f"Epoch {epoch}/{epochs} - Loss: {loss:.4f}")
+
+                # If validation data is provided, calculate validation loss
+                if X_val is not None and y_val is not None:
+                    y_val_pred = self.forward(X_val)
+                    val_loss = loss_function.compute(y_val, y_val_pred)
+
+                if X_val is not None and y_val is not None:
+                    print(
+                        f"Epoch {epoch}/{epochs} - Train Loss: {loss:.4f} | Val Loss: {val_loss:.4f}")
+                else:
+                    print(f"Epoch {epoch}/{epochs} - Loss: {loss:.4f}")
 
     def summary(self):
         print("MLP Structure:")
