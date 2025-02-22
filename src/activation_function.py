@@ -1,10 +1,7 @@
-import numpy as np
+import cupy as cp
 
 
 class ActivationFunction:
-    """
-    Base class for all activation functions.
-    """
     @staticmethod
     def activate(z):
         raise NotImplementedError(
@@ -17,12 +14,9 @@ class ActivationFunction:
 
 
 class Sigmoid(ActivationFunction):
-    """
-    Sigmoid activation function.
-    """
     @staticmethod
     def activate(z):
-        return 1 / (1 + np.exp(-z))
+        return 1 / (1 + cp.exp(-z))
 
     @staticmethod
     def derivative(z):
@@ -31,12 +25,9 @@ class Sigmoid(ActivationFunction):
 
 
 class ReLU(ActivationFunction):
-    """
-    ReLU (Rectified Linear Unit) activation function.
-    """
     @staticmethod
     def activate(z):
-        return np.maximum(0, z)
+        return cp.maximum(0, z)
 
     @staticmethod
     def derivative(z):
@@ -44,33 +35,23 @@ class ReLU(ActivationFunction):
 
 
 class Softmax(ActivationFunction):
-    """
-    Softmax activation function.
-    """
     @staticmethod
     def activate(z):
-        exp_z = np.exp(z - np.max(z))
-        return exp_z / np.sum(exp_z, axis=-1, keepdims=True)
+        exp_z = cp.exp(z - cp.max(z, axis=-1, keepdims=True))
+        return exp_z / cp.sum(exp_z, axis=-1, keepdims=True)
 
     @staticmethod
     def derivative(z):
-        """
-        The derivative of softmax is more complex as it's based on the Jacobian matrix.
-        This method is generally not used explicitly; instead, it is calculated during backpropagation.
-        """
         softmax = Softmax.activate(z)
         return softmax * (1 - softmax)
 
 
 class Tanh(ActivationFunction):
-    """
-    Tanh (hyperbolic tangent) activation function.
-    """
     @staticmethod
     def activate(z):
-        return np.tanh(z)
+        return cp.tanh(z)
 
     @staticmethod
     def derivative(z):
-        tanh_z = np.tanh(z)
+        tanh_z = cp.tanh(z)
         return 1 - tanh_z ** 2

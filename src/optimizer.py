@@ -1,21 +1,13 @@
-import numpy as np
+import cupy as cp
 
 
 class Optimizer:
-    """
-    Base class for optimizers.
-    """
-
     def update(self, weights, biases, dW, dB):
         raise NotImplementedError(
             "This method should be implemented by subclasses.")
 
 
 class SGD(Optimizer):
-    """
-    Stochastic Gradient Descent (SGD) optimizer.
-    """
-
     def __init__(self, learning_rate=0.01):
         self.learning_rate = learning_rate
 
@@ -26,23 +18,18 @@ class SGD(Optimizer):
 
 
 class Adam(Optimizer):
-    """
-    Adam Optimizer: Adaptive Moment Estimation.
-    """
-
     def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
         self.learning_rate = learning_rate
         self.beta1 = beta1  # Momentum decay
         self.beta2 = beta2  # RMSProp decay
         self.epsilon = epsilon  # To avoid division by zero
         self.t = 0  # Time step for bias correction
-        self.m_w, self.v_w = 0, 0  # First and second moment for weights
-        self.m_b, self.v_b = 0, 0  # First and second moment for biases
+        self.m_w, self.v_w = cp.zeros(1), cp.zeros(
+            1)  # First and second moment for weights
+        self.m_b, self.v_b = cp.zeros(1), cp.zeros(
+            1)  # First and second moment for biases
 
     def update(self, weights, biases, dW, dB):
-        """
-        Update weights and biases using Adam optimization.
-        """
         self.t += 1
 
         # Update biased first moment estimates
@@ -61,10 +48,10 @@ class Adam(Optimizer):
         v_w_hat = self.v_w / (1 - self.beta2 ** self.t)
         v_b_hat = self.v_b / (1 - self.beta2 ** self.t)
 
-        # Update weights and biases
+        # Update weights and biases using CuPy functions
         new_weights = weights - self.learning_rate * \
-            m_w_hat / (np.sqrt(v_w_hat) + self.epsilon)
+            m_w_hat / (cp.sqrt(v_w_hat) + self.epsilon)
         new_biases = biases - self.learning_rate * \
-            m_b_hat / (np.sqrt(v_b_hat) + self.epsilon)
+            m_b_hat / (cp.sqrt(v_b_hat) + self.epsilon)
 
         return new_weights, new_biases
